@@ -1,0 +1,33 @@
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Pytest cache
+.pytest_cache/
+
+# Environment variables and secrets
+.env
+.env.*
+
+# macOS files
+.DS_Store
+
+# Logs
+logs/
+
+# Generated database
+data/output/*.db
+data/output/*.db-journal
+
+# Generated reports
+data/output/run_report*.json
+
+# Generated rejected records
+data/rejected/*.csv
