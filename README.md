@@ -170,3 +170,32 @@ The SQLite warehouse contains:
 AI tools were used as development assistance for understanding requirements, exploring implementation approaches, debugging, and improving documentation.
 
 The project code, implementation decisions, test results, and final outputs were reviewed and validated by the candidate. The candidate is responsible for explaining the implementation and its design decisions.
+
+## Large-Scale Data Processing Test (100K)
+
+The pipeline was tested with 100,000 generated customers and 100,000 generated orders, plus one intentional duplicate record in each dataset.
+
+### Test Results
+
+| Metric | Customers | Orders |
+|---|---:|---:|
+| Input records | 100,001 | 100,001 |
+| Accepted records | 99,899 | 99,610 |
+| Rejected records | 102 | 391 |
+| Reconciliation | PASSED | PASSED |
+
+### Performance
+
+- Total execution time: 33.16 seconds
+- Pipeline status: SUCCESS
+- Database: SQLite
+- Reconciliation status: PASSED
+- Generated dataset: 100K customers and 100K orders
+
+### Verification
+
+- All five SQLite tables verified.
+- Database record counts matched the pipeline report.
+- All 15 automated tests passed.
+- Original 10K dataset preserved.
+- Large-scale dataset generated separately using a fixed random seed.

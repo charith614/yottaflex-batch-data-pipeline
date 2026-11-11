@@ -123,3 +123,29 @@ Automated tests cover:
 - Email validation uses a basic format check and does not verify whether an address actually exists.
 - The pipeline currently uses full snapshot replacement instead of incremental database updates.
 - The input datasets are CSV-based and do not currently support streaming ingestion.
+
+## Large-Scale Performance Testing
+
+The pipeline was tested using 100,000 generated customer records and 100,000 generated order records, with one intentional duplicate in each dataset.
+
+### Results
+
+| Metric | Customers | Orders |
+|---|---:|---:|
+| Input records | 100,001 | 100,001 |
+| Accepted records | 99,899 | 99,610 |
+| Rejected records | 102 | 391 |
+| Reconciliation | PASSED | PASSED |
+
+### Performance Observations
+
+- Total execution time: 33.16 seconds.
+- Pipeline completed with SUCCESS status.
+- All accepted records were published to SQLite.
+- Rejected records were stored separately.
+- Database counts matched the pipeline reconciliation report.
+- The original 10K input dataset was preserved.
+
+### Scalability Consideration
+
+The data generator supports configurable customer and order counts. This allows testing with different dataset sizes without changing the pipeline implementation.

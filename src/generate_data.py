@@ -5,10 +5,15 @@ from pathlib import Path
 from datetime import datetime, timedelta
 
 
-def generate_data(customer_count=10000, order_count=10000, seed=42):
+def generate_data(
+    customer_count=10000,
+    order_count=10000,
+    seed=42,
+    output_dir="data/input"
+):
     random.seed(seed)
 
-    folder = Path("data/input")
+    folder = Path(output_dir)
     folder.mkdir(parents=True, exist_ok=True)
 
     customer_ids = [
@@ -100,4 +105,9 @@ def generate_data(customer_count=10000, order_count=10000, seed=42):
 
 
 if __name__ == "__main__":
-    generate_data()
+    generate_data(
+        customer_count=100000,
+        order_count=100000,
+        seed=42,
+        output_dir="data/input_100k"
+    )

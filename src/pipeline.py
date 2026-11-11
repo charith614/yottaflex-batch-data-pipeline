@@ -12,7 +12,7 @@ from src.publishing import publish_data, record_failed_run
 from src.logger import setup_logger
 
 
-def run_pipeline():
+def run_pipeline(input_dir=None):
     logger = setup_logger()
     start_time = time.time()
     started_at = datetime.now().isoformat()
@@ -22,8 +22,13 @@ def run_pipeline():
         logger.info("Pipeline started. Run ID: %s", run_id)
 
         # 1. Ingestion
-        customers = load_customers()
-        orders = load_orders()
+        if input_dir is None:
+            customers = load_customers()
+            orders = load_orders()
+        else:
+            input_folder = Path(input_dir)
+            customers = load_customers(input_folder / "customers.csv")
+            orders = load_orders(input_folder / "orders.csv")
 
         logger.info("Customer records loaded: %s", len(customers))
         logger.info("Order records loaded: %s", len(orders))
@@ -158,11 +163,9 @@ def run_pipeline():
         output_folder = Path("data/output")
         output_folder.mkdir(parents=True, exist_ok=True)
 
-        # Save the latest run report
         with open(output_folder / "run_report.json", "w") as file:
             json.dump(report, file, indent=4)
 
-        # Save a separate report for this specific run
         with open(output_folder / f"run_report_{run_id}.json", "w") as file:
             json.dump(report, file, indent=4)
 
@@ -176,7 +179,6 @@ def run_pipeline():
     except Exception as error:
         logger.exception("Pipeline failed.")
 
-        # Record the failed execution in the database
         try:
             failed_duration = round(time.time() - start_time, 2)
             failed_completed_at = datetime.now().isoformat()

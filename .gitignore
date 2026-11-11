@@ -31,3 +31,6 @@ data/output/run_report*.json
 
 # Generated rejected records
 data/rejected/*.csv
+
+# Generated 100K test dataset
+data/input_100k/
