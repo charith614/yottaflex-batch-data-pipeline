@@ -156,7 +156,7 @@ The pipeline was tested using 100,000 generated customer records and 100,000 gen
 The data generator supports configurable customer and order counts. This allows testing with different dataset sizes without changing the pipeline implementation.
 
 
-## 12. Pipeline Architecture
+## 13. Pipeline Architecture
 
 The batch pipeline follows a modular, sequential workflow:
 
