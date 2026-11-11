@@ -127,6 +127,7 @@ Automated tests cover:
 - Email validation uses a basic format check and does not verify whether an address actually exists.
 - The pipeline currently uses full snapshot replacement instead of incremental database updates.
 - The input datasets are CSV-based and do not currently support streaming ingestion.
+- Publishing uses Pandas `to_sql()` with a SQLite connection. If publishing fails midway, a partial database update may occur because rollback of inserted records is not guaranteed.
 
 ## Large-Scale Performance Testing
 

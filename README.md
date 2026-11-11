@@ -42,7 +42,7 @@ yottaflex-batch-data-pipeline/
 │
 ├── data/
 │   ├── input/
-│   ├── input_100k/       # Generated large-scale dataset
+│   ├── input_100k/
 │   ├── output/
 │   └── rejected/
 │
@@ -160,22 +160,24 @@ Execute all automated tests:
 python -m pytest -v
 ```
 
-The project contains 17 automated tests covering:
+The project contains **19 automated tests** covering:
 
 - Valid and invalid CSV ingestion.
 - Missing files and required columns.
 - Empty and malformed CSV files.
 - Valid customer records.
 - Missing and duplicate customer IDs.
+- Null customer IDs.
 - Invalid customer email addresses.
 - Invalid order amounts.
+- Null order amounts.
 - Unknown customer references.
 - Invalid order statuses.
 - Empty customer datasets.
 - Pipeline success and failure handling.
 - Idempotent database publishing.
 
-**Latest test result: 17 passed.**
+**Latest test result: 19 passed.**
 
 ## Output Locations
 
@@ -257,11 +259,11 @@ The pipeline was tested with 100,000 generated customers and 100,000 generated o
 
 - All five SQLite tables verified.
 - Database record counts matched the pipeline report.
-- All 17 automated tests passed.
+- All 19 automated tests passed.
 - Original 10K input dataset preserved.
 - Large-scale dataset generated separately using a fixed random seed.
 - Rejected records exported successfully.
 
 ---
 
-**Repository:** https://github.com/charith614/yottaflex-batch-data-pipeline
+**Repository:** [YottaFlex Batch Data Pipeline](https://github.com/charith614/yottaflex-batch-data-pipeline)
