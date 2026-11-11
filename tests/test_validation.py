@@ -146,3 +146,40 @@ def test_invalid_order_status():
     assert len(valid) == 0
     assert len(rejected) == 1
     assert "Invalid order status" in rejected.iloc[0]["rejection_reason"]
+
+
+def test_null_customer_id():
+    df = pd.DataFrame([
+        {
+            "customer_id": None,
+            "first_name": "Ravi",
+            "last_name": "Kumar",
+            "email": "ravi@example.com",
+            "city": "Hyderabad",
+            "created_at": "2026-10-01T09:00:00"
+        }
+    ])
+
+    valid, rejected = validate_customers(df)
+
+    assert len(valid) == 0
+    assert len(rejected) == 1
+    assert "Missing customer ID" in rejected.iloc[0]["rejection_reason"]
+
+
+def test_null_order_amount():
+    df = pd.DataFrame([
+        {
+            "order_id": "O003",
+            "customer_id": "C001",
+            "order_date": "2026-10-01T10:00:00",
+            "amount": None,
+            "status": "COMPLETED"
+        }
+    ])
+
+    valid, rejected = validate_orders(df, {"C001"})
+
+    assert len(valid) == 0
+    assert len(rejected) == 1
+    assert "Invalid order amount" in rejected.iloc[0]["rejection_reason"]
