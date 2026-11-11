@@ -110,3 +110,39 @@ def test_empty_customer_data():
 
     assert len(valid) == 0
     assert len(rejected) == 0
+
+def test_invalid_customer_email():
+    df = pd.DataFrame([
+        {
+            "customer_id": "C002",
+            "first_name": "Ravi",
+            "last_name": "Kumar",
+            "email": "invalid-email",
+            "city": "Hyderabad",
+            "created_at": "2026-10-01T09:00:00"
+        }
+    ])
+
+    valid, rejected = validate_customers(df)
+
+    assert len(valid) == 0
+    assert len(rejected) == 1
+    assert "Invalid email format" in rejected.iloc[0]["rejection_reason"]
+
+
+def test_invalid_order_status():
+    df = pd.DataFrame([
+        {
+            "order_id": "O002",
+            "customer_id": "C001",
+            "order_date": "2026-10-01T10:00:00",
+            "amount": 500,
+            "status": "PROCESSING"
+        }
+    ])
+
+    valid, rejected = validate_orders(df, {"C001"})
+
+    assert len(valid) == 0
+    assert len(rejected) == 1
+    assert "Invalid order status" in rejected.iloc[0]["rejection_reason"]

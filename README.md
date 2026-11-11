@@ -22,6 +22,8 @@ The pipeline also generates execution reports, maintains run history, and perfor
 - JSON execution reports.
 - Automated tests using Pytest.
 - Reproducible synthetic dataset generation.
+- Configurable input directory for large-scale testing.
+- Support for 100K customer and order datasets.
 
 ## Technology Stack
 
@@ -40,10 +42,12 @@ yottaflex-batch-data-pipeline/
 │
 ├── data/
 │   ├── input/
+│   ├── input_100k/       # Generated large-scale dataset
 │   ├── output/
 │   └── rejected/
 │
 ├── src/
+│   ├── __init__.py
 │   ├── generate_data.py
 │   ├── ingestion.py
 │   ├── validation.py
@@ -53,13 +57,19 @@ yottaflex-batch-data-pipeline/
 │   └── logger.py
 │
 ├── tests/
+│   ├── __init__.py
 │   ├── test_ingestion.py
 │   ├── test_validation.py
 │   ├── test_pipeline.py
 │   └── test_publishing.py
 │
 ├── docs/
+│   ├── data_dictionary.md
+│   └── design_decisions.md
+│
 ├── prompt_history/
+│   └── ai_prompts.md
+│
 ├── main.py
 ├── requirements.txt
 ├── README.md
@@ -71,7 +81,7 @@ yottaflex-batch-data-pipeline/
 ### 1. Clone the repository
 
 ```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
+git clone https://github.com/charith614/yottaflex-batch-data-pipeline.git
 cd yottaflex-batch-data-pipeline
 ```
 
@@ -95,36 +105,77 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Generate Input Data
+## Input Data Generation
 
-Generate the synthetic customer and order datasets:
+The project includes a reproducible synthetic data generator.
+
+Run:
 
 ```bash
 python src/generate_data.py
 ```
 
-The generated CSV files are stored in:
+This generates 100,000 customers and 100,000 orders, including intentional duplicate records, in:
 
-- `data/input/customers.csv`
-- `data/input/orders.csv`
+- `data/input_100k/customers.csv`
+- `data/input_100k/orders.csv`
+
+The original 10K sample dataset is maintained separately in `data/input/`.
+
+The generator uses a fixed random seed to support reproducible testing.
 
 ## Run the Pipeline
 
-Execute the complete batch pipeline:
+To execute the pipeline using the original input dataset:
 
 ```bash
 python main.py
 ```
 
-The pipeline performs ingestion, validation, transformation, rejection handling, reconciliation, and database publishing.
+The pipeline performs:
+
+1. CSV ingestion.
+2. Schema and business-rule validation.
+3. Data transformation.
+4. Rejected-record handling.
+5. Data reconciliation.
+6. SQLite database publishing.
+7. Execution reporting and logging.
+
+## Run the 100K Data Processing Test
+
+After generating the large-scale dataset, execute:
+
+```bash
+python -c "from src.pipeline import run_pipeline; run_pipeline('data/input_100k')"
+```
+
+The pipeline supports a configurable input directory, allowing different datasets to be processed without changing the core implementation.
 
 ## Run Automated Tests
 
-Execute all tests:
+Execute all automated tests:
 
 ```bash
 python -m pytest -v
 ```
+
+The project contains 17 automated tests covering:
+
+- Valid and invalid CSV ingestion.
+- Missing files and required columns.
+- Empty and malformed CSV files.
+- Valid customer records.
+- Missing and duplicate customer IDs.
+- Invalid customer email addresses.
+- Invalid order amounts.
+- Unknown customer references.
+- Invalid order statuses.
+- Empty customer datasets.
+- Pipeline success and failure handling.
+- Idempotent database publishing.
+
+**Latest test result: 17 passed.**
 
 ## Output Locations
 
@@ -141,18 +192,22 @@ python -m pytest -v
 
 The pipeline verifies that:
 
-`Input Records = Accepted Records + Rejected Records`
+```text
+Input Records = Accepted Records + Rejected Records
+```
 
-Reconciliation is performed separately for customers and orders. If the counts do not balance, the pipeline reports a failure.
+Reconciliation is performed separately for customers and orders.
+
+If the record counts do not balance, the pipeline reports a failure.
 
 ## Database Tables
 
-The SQLite warehouse contains:
+The SQLite warehouse contains five tables:
 
 - `customers` – validated and transformed customer records.
 - `orders` – validated and transformed order records.
-- `rejected_customers` – rejected customer records and reasons.
-- `rejected_orders` – rejected order records and reasons.
+- `rejected_customers` – rejected customer records and rejection reasons.
+- `rejected_orders` – rejected order records and rejection reasons.
 - `pipeline_runs` – execution history, status, record counts, duration, and error details.
 
 ## Design Considerations
@@ -161,15 +216,21 @@ The SQLite warehouse contains:
 - Duplicate identifiers are rejected.
 - Orders referencing invalid or unknown customers are rejected.
 - Each execution receives a unique run ID.
-- Curated tables represent the latest successful data snapshot.
+- Curated tables represent the latest processed data snapshot.
 - Pipeline execution history is maintained separately.
 - Reconciliation checks help ensure record-count consistency.
+- Large-scale testing uses a separate input directory.
+- Generated output files and large test datasets are excluded from version control.
+
+Additional design decisions and trade-offs are documented in `docs/design_decisions.md`.
 
 ## AI Assistance Disclosure
 
-AI tools were used as development assistance for understanding requirements, exploring implementation approaches, debugging, and improving documentation.
+AI tools were used as development assistance for understanding requirements, exploring implementation approaches, debugging, writing tests, and improving documentation.
 
-The project code, implementation decisions, test results, and final outputs were reviewed and validated by the candidate. The candidate is responsible for explaining the implementation and its design decisions.
+The candidate reviewed and validated the implementation, test results, and final outputs and is responsible for understanding and explaining the project's design decisions.
+
+AI assistance and relevant prompts are documented in `prompt_history/ai_prompts.md`.
 
 ## Large-Scale Data Processing Test (100K)
 
@@ -186,16 +247,21 @@ The pipeline was tested with 100,000 generated customers and 100,000 generated o
 
 ### Performance
 
-- Total execution time: 33.16 seconds
-- Pipeline status: SUCCESS
-- Database: SQLite
-- Reconciliation status: PASSED
-- Generated dataset: 100K customers and 100K orders
+- Total execution time: 33.16 seconds.
+- Pipeline status: SUCCESS.
+- Database: SQLite.
+- Reconciliation status: PASSED.
+- Generated dataset: 100K customers and 100K orders.
 
 ### Verification
 
 - All five SQLite tables verified.
 - Database record counts matched the pipeline report.
-- All 15 automated tests passed.
-- Original 10K dataset preserved.
+- All 17 automated tests passed.
+- Original 10K input dataset preserved.
 - Large-scale dataset generated separately using a fixed random seed.
+- Rejected records exported successfully.
+
+---
+
+**Repository:** https://github.com/charith614/yottaflex-batch-data-pipeline
