@@ -116,6 +116,10 @@ Automated tests cover:
 - Empty customer datasets.
 - Pipeline success and failure handling.
 - Idempotent database publishing.
+- Invalid customer email formats.
+- Invalid order statuses.
+- Null customer IDs.
+- Null order amounts.
 
 ## 11. Current Limitations
 
@@ -149,3 +153,46 @@ The pipeline was tested using 100,000 generated customer records and 100,000 gen
 ### Scalability Consideration
 
 The data generator supports configurable customer and order counts. This allows testing with different dataset sizes without changing the pipeline implementation.
+
+
+## 12. Pipeline Architecture
+
+The batch pipeline follows a modular, sequential workflow:
+
+```text
+Customer CSV + Order CSV
+          |
+          v
+    Data Ingestion
+          |
+          v
+    Data Validation
+          |
+       +--+--+
+       |     |
+       v     v
+   Accepted Rejected
+       |     |
+       v     v
+ Data       Rejection
+Transformation CSV Export
+       |
+       v
+ SQLite Publishing
+       |
+       v
+ Curated Tables
+       |
+       v
+ Run Reports and Logs
+```
+
+### Workflow Description
+
+1. Customer and order CSV files are loaded from the input directory.
+2. Structural checks ensure that the input files are readable and contain the required columns.
+3. Validation separates valid records from invalid records.
+4. Accepted records are standardized through transformation.
+5. Rejected records are exported separately with rejection reasons.
+6. Accepted and rejected datasets are published to SQLite.
+7. Execution details, record counts, reconciliation results, and status are stored in reports and logs.
